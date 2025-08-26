@@ -8,7 +8,7 @@ type SeedData = {
   paymentEventsData: PaymentEvent[];
 };
 
-const seed = async ({ invoicesData }: SeedData) => {
+const seed = async ({ invoicesData, paymentEventsData }: SeedData) => {
   if (process.env.NODE_ENV !== "production") {
     await db.query(`CREATE SCHEMA IF NOT EXISTS billing;`);
   }
@@ -45,6 +45,22 @@ const seed = async ({ invoicesData }: SeedData) => {
       ])
     );
     await db.query(invoiceInsertQuery);
+  }
+
+  if (paymentEventsData.length > 0) {
+    const paymentInsertQuery = format(
+      `INSERT INTO payment_events (event_id, type, invoice_id, amount_cents, created_at) VALUES %L RETURNING *;`,
+      paymentEventsData.map(
+        ({ event_id, type, invoice_id, amount_cents, created_at }) => [
+          event_id,
+          type,
+          invoice_id,
+          amount_cents,
+          created_at ?? new Date(),
+        ]
+      )
+    );
+    await db.query(paymentInsertQuery);
   }
 };
 

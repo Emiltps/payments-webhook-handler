@@ -44,4 +44,18 @@ describe("seed testing", () => {
       expect(result.rows[0].exists).toBe(true);
     });
   });
+  test("payment_events table seeded correctly", async () => {
+    const result = await db.query(
+      "SELECT event_id, type, invoice_id, amount_cents FROM payment_events ORDER BY event_id"
+    );
+    expect(result.rows.length).toBe(data.paymentEventsData.length);
+    for (let i = 0; i < data.paymentEventsData.length; i++) {
+      const expected = data.paymentEventsData[i];
+      const actual = result.rows[i];
+      expect(actual.event_id).toBe(expected.event_id);
+      expect(actual.type).toBe(expected.type);
+      expect(actual.invoice_id).toBe(expected.invoice_id);
+      expect(actual.amount_cents).toBe(expected.amount_cents);
+    }
+  });
 });
