@@ -8,6 +8,9 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
+    "setup-dbs": "psql -f ./db/setup-dbs.sql",
+    "seed-dev": "ts-node ./db/seeds/run-seed.ts",
+    "start": "ts-node ./bin/start.ts",
     "test": "jest --runInBand"
   },
   "devDependencies": {
@@ -19,6 +22,7 @@
     "jest": "^30.0.5",
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   },
   "dependencies": {
