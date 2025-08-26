@@ -1,8 +1,14 @@
 import { Request, Response } from "express";
-import { handlePaymentEvent } from "../models/payments";
+import { checkEvent, handlePaymentEvent } from "../models/payments";
 import { PaymentEvent } from "../types/payment";
 
 export async function postPaymentWebhook(req: Request, res: Response) {
+  let event: PaymentEvent;
+  try {
+    event = checkEvent(req.body);
+  } catch (err: any) {
+    return res.status(400).json({ ok: false, error: err.message });
+  }
   try {
     await handlePaymentEvent(req.body);
     res.status(200).json({ ok: true });

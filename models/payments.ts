@@ -1,6 +1,27 @@
 import db from "../db/connection";
 import { PaymentEvent } from "../types/payment";
 
+export function checkEvent(body: any): PaymentEvent {
+  if (!body || typeof body !== "object") throw new Error("Invalid body");
+
+  const { event_id, type, invoice_id, amount_cents } = body;
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+  if (!uuidRegex.test(event_id)) throw new Error("Invalid event_id");
+  if (type !== "payment") throw new Error("Invalid type");
+  if (!uuidRegex.test(invoice_id)) throw new Error("Invalid invoice_id");
+  if (
+    typeof amount_cents !== "number" ||
+    !Number.isInteger(amount_cents) ||
+    amount_cents <= 0
+  ) {
+    throw new Error("Invalid amount_cents");
+  }
+
+  return { event_id, type, invoice_id, amount_cents };
+}
+
 export async function handlePaymentEvent(event: PaymentEvent) {
   const client = await db.connect();
   try {

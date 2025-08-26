@@ -44,4 +44,55 @@ describe("POST /webhooks/payments", () => {
     expect(rows[0].status).toBe("paid");
     expect(rows[0].paid_cents).toBe(10000);
   });
+  test("400 if invoice does not exist", async () => {
+    const result = await request(app).post("/webhooks/payments").send({
+      event_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      type: "payment",
+      invoice_id: "14111111-1111-1111-1111-141111111111",
+      amount_cents: 100,
+    });
+
+    expect(result.status).toBe(400);
+    expect(result.body.ok).toEqual(false);
+    expect(result.body.error).toEqual("Invoice not found");
+  });
+  test("400 non-positive amount does not exist", async () => {
+    const result = await request(app).post("/webhooks/payments").send({
+      event_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      type: "payment",
+      invoice_id: "11111111-1111-1111-1111-111111111111",
+      amount_cents: -100,
+    });
+    expect(result.status).toBe(400);
+    expect(result.body.ok).toEqual(false);
+    expect(result.body.error).toEqual("Invalid amount_cents");
+  });
+  test("400 Invalid body sent", async () => {
+    const result = await request(app).post("/webhooks/payments").send("1");
+    expect(result.status).toBe(400);
+    expect(result.body.ok).toEqual(false);
+    expect(result.body.error).toEqual("Invalid body");
+  });
+  test("400 Invalid invoice id (not UUID)", async () => {
+    const result = await request(app).post("/webhooks/payments").send({
+      event_id: "bad-id-aaaa-aaaaaaaaaaaa",
+      type: "payment",
+      invoice_id: "11111111-1111-1111-1111-111111111111",
+      amount_cents: 100,
+    });
+    expect(result.status).toBe(400);
+    expect(result.body.ok).toEqual(false);
+    expect(result.body.error).toEqual("Invalid event_id");
+  });
+  test("400 Invalid invoice id (not UUID)", async () => {
+    const result = await request(app).post("/webhooks/payments").send({
+      event_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      type: "payment",
+      invoice_id: "bad-id-1111-1111-111111111111",
+      amount_cents: 100,
+    });
+    expect(result.status).toBe(400);
+    expect(result.body.ok).toEqual(false);
+    expect(result.body.error).toEqual("Invalid invoice_id");
+  });
 });
