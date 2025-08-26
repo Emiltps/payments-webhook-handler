@@ -33,4 +33,15 @@ describe("seed testing", () => {
       }
     });
   });
+  describe("payment_events table", () => {
+    test("payment_events table exists", async () => {
+      const result = await db.query<{ exists: boolean }>(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_name = 'payment_events'
+        );
+      `);
+      expect(result.rows[0].exists).toBe(true);
+    });
+  });
 });
