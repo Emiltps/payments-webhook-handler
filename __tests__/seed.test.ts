@@ -16,5 +16,21 @@ describe("seed testing", () => {
       `);
       expect(result.rows[0].exists).toBe(true);
     });
+
+    test("invoices table seeded correctly", async () => {
+      const result = await db.query(
+        "SELECT id, status, total_cents, paid_cents FROM invoices ORDER BY id"
+      );
+      expect(result.rows.length).toBe(data.invoicesData.length);
+
+      for (let i = 0; i < data.invoicesData.length; i++) {
+        const expected = data.invoicesData[i];
+        const actual = result.rows[i];
+        expect(actual.id).toBe(expected.id);
+        expect(actual.status).toBe(expected.status);
+        expect(actual.total_cents).toBe(expected.total_cents);
+        expect(actual.paid_cents).toBe(expected.paid_cents);
+      }
+    });
   });
 });
