@@ -8,9 +8,9 @@ export async function postPaymentWebhook(req: Request, res: Response) {
     res.status(200).json({ ok: true });
   } catch (err: any) {
     if (err.message === "Invoice not found") {
-      return res.status(400).json({ error: err.message });
+      return res.status(400).json({ ok: false, error: err.message });
     }
     console.error("Error processing payment event", err);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ ok: false, error: "Internal server error" });
   }
 }

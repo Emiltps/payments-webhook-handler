@@ -26,7 +26,9 @@ export async function handlePaymentEvent(event: PaymentEvent) {
     const newPaid = invoice.paid_cents + event.amount_cents;
 
     let newStatus = invoice.status;
-    if (newPaid > 0) {
+    if (newPaid >= invoice.total_cents) {
+      newStatus = "paid";
+    } else if (newPaid > 0) {
       newStatus = "partially_paid";
     }
 
