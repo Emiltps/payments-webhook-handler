@@ -73,7 +73,7 @@ describe("POST /webhooks/payments", () => {
     expect(result.body.ok).toEqual(false);
     expect(result.body.error).toEqual("Invalid body");
   });
-  test("400 Invalid invoice id (not UUID)", async () => {
+  test("400 event id (not UUID)", async () => {
     const result = await request(app).post("/webhooks/payments").send({
       event_id: "bad-id-aaaa-aaaaaaaaaaaa",
       type: "payment",
