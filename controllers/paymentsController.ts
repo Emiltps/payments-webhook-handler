@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { checkEvent, handlePaymentEvent } from "../models/payments";
 import { PaymentEvent } from "../types/payment";
+import { EventQueue } from "../lib/queue";
+
+export const eventQueue = new EventQueue<PaymentEvent>(handlePaymentEvent); //first in first out
 
 export async function postPaymentWebhook(req: Request, res: Response) {
   let event: PaymentEvent;
@@ -10,7 +13,7 @@ export async function postPaymentWebhook(req: Request, res: Response) {
     return res.status(400).json({ ok: false, error: err.message });
   }
   try {
-    await handlePaymentEvent(req.body);
+    await eventQueue.enqueue(event);
     res.status(200).json({ ok: true });
   } catch (err: any) {
     if (err.message === "Invoice not found") {
